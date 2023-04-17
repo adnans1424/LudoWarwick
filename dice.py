@@ -1,6 +1,7 @@
 import pygame
 import random
 from button import Button
+dir = "GameFiles/{}.png"
 
 
 #Dice class defines the properties and behaviours of the dice
@@ -11,13 +12,13 @@ class Dice(Button):
     outcome = 0
 
     #dice images
-    faces = [pygame.image.load("LudoWarwick/GameFiles/dice_null.png"),
-             pygame.image.load("LudoWarwick/GameFiles/dice_1.png"),
-             pygame.image.load("LudoWarwick/GameFiles/dice_2.png"),
-             pygame.image.load("LudoWarwick/GameFiles/dice_3.png"),
-             pygame.image.load("LudoWarwick/GameFiles/dice_4.png"),
-             pygame.image.load("LudoWarwick/GameFiles/dice_5.png"),
-             pygame.image.load("LudoWarwick/GameFiles/dice_6.png"),]
+    faces = [pygame.image.load(dir.format("dice_null")),
+             pygame.image.load(dir.format("dice_1")),
+             pygame.image.load(dir.format("dice_2")),
+             pygame.image.load(dir.format("dice_3")),
+             pygame.image.load(dir.format("dice_4")),
+             pygame.image.load(dir.format("dice_5")),
+             pygame.image.load(dir.format("dice_6")),]
     
     
     #initialize as a button

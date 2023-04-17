@@ -4,7 +4,7 @@ from button import Button
 from dice import Dice
 from creator import TokenCreator
 from player import Player
-dir = "LudoWarwick/GameFiles/{}.png"
+dir = "GameFiles/{}.png"
 
 
 #game setup
