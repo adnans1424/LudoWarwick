@@ -21,8 +21,10 @@ class Token(Button):
         self.path[self.current].addToken(self)
 
 
-    #this function moves the token to a different square, and returns whether it captured another token there.
-    def move(self, steps):
+    #this function moves the token to a different square, and apply the rules of the game
+    def move(self, player, steps, dice):
+
+        player.anotherMove = False
 
         #per game rules, first move must be one step
         if self.current == 0:
@@ -33,14 +35,34 @@ class Token(Button):
 
         #move
         self.current += steps
+        
+        #capture other tokens if possible, and if so, the player is eligible for another move
+        if self.capture():
+            dice.makeAvailable(player)
 
-        #capture another token if possible
-        captured = self.capture()
+        #if the dice value is 6, the player is eligible for another move
+        if dice.outcome == 6:
+            dice.makeAvailable(player)
+
+        #if the token reaches the end, the player is eligble for another move, or the player wins if all tokens are at the end
+        if self.finished():
+
+            player.atEnd += 1
+
+            if player.atEnd < 4:
+                dice.makeAvailable(player)
+
+            else:
+                player.place = winnerPlace
+                winnerPlace += 1 #increment the value for next winner
+
+                #this will remove the current player from the linked list
+                #remove the references to the current player from neighbour players on the list
+                player.previousPlayer.nextPlayer = player.nextPlayer
+                player.nextPlayer.previousPlayer = player.previousPlayer
 
         #finally, the token must add itself to the new square
         self.path[self.current].addToken(self)
-
-        return captured
 
 
     #this function tries to capture other tokens if possible, and returns whether it did

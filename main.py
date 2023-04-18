@@ -103,7 +103,6 @@ def game(numOfPlayers, computer):
                                                   load(dir.format("mainmenu_button_big_dim")))
     #a dice
     dice = Dice()
-    diceValue = 0
     #a counter to keep track of the order of winners (Ludo has three winners)
     winnerPlace = 0
     #images for the winners
@@ -178,7 +177,7 @@ def game(numOfPlayers, computer):
             return
 
         #if the current player has no more actions to make and the dice is not available, that means their turn ends
-        if not currentPlayer.actionsAvailable(diceValue) and not dice.available:
+        if not currentPlayer.actionsAvailable(dice.outcome) and not dice.available:
             currentPlayer = currentPlayer.nextPlayer #go to next player's turn
             dice.makeAvailable(currentPlayer) #reset dice for the current player
 
@@ -200,40 +199,15 @@ def game(numOfPlayers, computer):
 
             #if the dice was clicked while it is available, it will produce a random value and show it on screen
             if event.type == pygame.MOUSEBUTTONUP and dice.isHovering(mousePosition) and dice.available:
-                diceValue = dice.getRandom(screen)
+                dice.getRandom(screen)
 
             #to check if the current player has interacted with their tokens, we iterate through their tokens
             for token in currentPlayer.tokens:
 
                 #if the token was clicked while the dice is NOT available and it is a valid move, that token will be played
-                if event.type == pygame.MOUSEBUTTONUP and token.isHovering(mousePosition) and not dice.available and token.isValid(diceValue):
+                if event.type == pygame.MOUSEBUTTONUP and token.isHovering(mousePosition) and not dice.available and token.isValid(dice.outcome):
                     
-                    currentPlayer.anotherMove = False
-                    
-                    #token.move() returns whether a another token was captured, and then the player is eligible for another move
-                    if token.move(diceValue):
-                        dice.makeAvailable(currentPlayer)
-
-                    #if the dice value is 6, the player is eligible for another move
-                    if diceValue == 6:
-                        dice.makeAvailable(currentPlayer)
-
-                    #if the token reaches the end, the player is eligble for another move, or the player wins if all tokens are at the end
-                    if token.finished():
-
-                        currentPlayer.atEnd += 1
-
-                        if currentPlayer.atEnd < 4:
-                            dice.makeAvailable(currentPlayer)
-
-                        else:
-                            currentPlayer.place = winnerPlace
-                            winnerPlace += 1 #increment the value for next winner
-
-                            #this will remove the current player from the linked list
-                            #remove the references to the current player from neighbour players on the list
-                            currentPlayer.previousPlayer.nextPlayer = currentPlayer.nextPlayer
-                            currentPlayer.nextPlayer.previousPlayer = currentPlayer.previousPlayer
+                    token.move(currentPlayer, dice.outcome, dice)
 
                     break
         #############################################################
