@@ -1,4 +1,4 @@
-from token import Token
+from mytoken import Token
 
 
 #Player class defines the properties and behaviours of a player
