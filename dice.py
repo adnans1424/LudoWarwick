@@ -2,7 +2,7 @@ import random
 import pygame
 from pygame.image import load
 from button import Button
-dir = "GameFiles/{}.png"
+dir = "GameAssets/{}.png"
 
 
 #Dice class defines the properties and behaviours of the dice

@@ -1,6 +1,6 @@
 from pygame.image import load
 from square import Square
-dir = "GameFiles/{}.png"
+dir = "GameAssets/{}.png"
 
 #TokenCreator class is responsible for creating a game setup, which all tokens can access
 class TokenCreator():
