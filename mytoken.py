@@ -1,4 +1,3 @@
-import pygame
 from button import Button
 
 
@@ -23,7 +22,7 @@ class Token(Button):
 
 
     #this function moves the token to a different square, and returns whether it captured another token there.
-    def move(self, screen, steps):
+    def move(self, steps):
 
         #per game rules, first move must be one step
         if self.current == 0:
@@ -32,26 +31,8 @@ class Token(Button):
         #the token must remove itself from the old square
         self.path[self.current].removeToken(self)
 
-        for i in range(steps):
-
-            # start = self.path[self.current].position
-            # end = self.path[self.current + 1].position
-
-            # xDistance = end[0] - start[0]
-            # yDistance = end[1] - start[1]
-
-            # xVelocity = xDistance / 50
-            # yVelecity = yDistance / 50
-
-            # for i in range(50):
-            #     screen.blit(self.images[0][0], (start[0] + xVelocity, start[1] + yVelecity))
-            #     pygame.display.flip()
-            #     clock.tick(50)
-
-            
-
-            self.current += 1
-
+        #move
+        self.current += steps
 
         #capture another token if possible
         captured = self.capture()

@@ -211,7 +211,7 @@ def game(numOfPlayers, computer):
                     currentPlayer.anotherMove = False
                     
                     #token.move() returns whether a another token was captured, and then the player is eligible for another move
-                    if token.move(screen, diceValue):
+                    if token.move(diceValue):
                         dice.makeAvailable(currentPlayer)
 
                     #if the dice value is 6, the player is eligible for another move
