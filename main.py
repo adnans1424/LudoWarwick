@@ -4,6 +4,7 @@ from button import Button
 from dice import Dice
 from creator import TokenCreator
 from player import Player
+from computer import Computer
 dir = "GameAssets/{}.png"
 
 
@@ -30,10 +31,13 @@ def mainMenu():
     #background image
     mainMenu = load(dir.format("main_menu_background"))
     #Button objects
-    twoPlayersButton = Button((208, 270), (385, 110), load(dir.format("2players_button_small")),
+    onePlayerButton = Button((208, 270), (385, 110), load(dir.format("computer_button_small")),
+                                                      load(dir.format("computer_button_big")),
+                                                      load(dir.format("computer_button_big_dim")))
+    twoPlayersButton = Button((208, 400), (385, 110), load(dir.format("2players_button_small")),
                                                       load(dir.format("2players_button_big")),
                                                       load(dir.format("2players_button_big_dim")))
-    fourPlayersButton = Button((208, 400), (385, 110), load(dir.format("4players_button_small")),
+    fourPlayersButton = Button((208, 530), (385, 110), load(dir.format("4players_button_small")),
                                                        load(dir.format("4players_button_big")),
                                                        load(dir.format("4players_button_big_dim")))
 
@@ -49,6 +53,7 @@ def mainMenu():
         mousePosition = pygame.mouse.get_pos()
         
         #render the graphics of the buttons on the screen
+        onePlayerButton.update(screen, mousePosition, mouseInput)
         twoPlayersButton.update(screen, mousePosition, mouseInput)
         fourPlayersButton.update(screen, mousePosition, mouseInput)
 
@@ -63,11 +68,14 @@ def mainMenu():
                 return
 
             #if the user clicks while hovering on the buttons, it will enter the game screen.
+            if event.type == pygame.MOUSEBUTTONUP and onePlayerButton.isHovering(mousePosition):
+                game(2, True)
+
             if event.type == pygame.MOUSEBUTTONUP and twoPlayersButton.isHovering(mousePosition):
-                game(2)
+                game(2, False)
 
             if event.type == pygame.MOUSEBUTTONUP and fourPlayersButton.isHovering(mousePosition):
-                game(4)
+                game(4, False)
 
 
         #to apply all changes on screen and refresh the window
@@ -79,7 +87,7 @@ def mainMenu():
 
 
 #this is the game screen
-def game(numOfPlayers):
+def game(numOfPlayers, computer):
     #to create an instance for the current game set
     gameSetup = TokenCreator()
 
@@ -89,13 +97,10 @@ def game(numOfPlayers):
     #before the game loop, we load the game data needed
     #a background image
     board = load(dir.format("game_board"))
-    #Button objects
+    #Button object
     mainMenuButton = Button((15, 719), (165, 66), load(dir.format("mainmenu_button_small")),
                                                   load(dir.format("mainmenu_button_big")),
                                                   load(dir.format("mainmenu_button_big_dim")))
-    gameStatsButton = Button((620, 719), (165, 66), load(dir.format("gamestats_button_small")),
-                                                    load(dir.format("gamestats_button_big")),
-                                                    load(dir.format("gamestats_button_big_dim")))
     #a dice
     dice = Dice()
     diceValue = 0
@@ -112,6 +117,8 @@ def game(numOfPlayers):
     if numOfPlayers == 4:
         players.insert(1, Player(gameSetup, "blue", (121, 68), load(dir.format("blue_background"))))
         players.insert(3, Player(gameSetup, "green", (508, 455), load(dir.format("green_background"))))
+    if computer: #if we are in computer mode
+        players[1].automized = True
 
 
     #this creates a circular doubly linked lists, it is used to rotate turns between players,
@@ -144,7 +151,6 @@ def game(numOfPlayers):
         #render the graphics of the dice and buttons on the screen
         dice.update(screen)
         mainMenuButton.update(screen, mousePosition, mouseInput)
-        gameStatsButton.update(screen, mousePosition, mouseInput)
 
         #render the graphics of every square on the gameboard
         for square in gameSetup.record:
@@ -172,7 +178,7 @@ def game(numOfPlayers):
             return
 
         #if the current player has no more actions to make and the dice is not available, that means their turn ends
-        if not currentPlayer.action(diceValue) and not dice.available:
+        if not currentPlayer.actionsAvailable(diceValue) and not dice.available:
             currentPlayer = currentPlayer.nextPlayer #go to next player's turn
             dice.makeAvailable(currentPlayer) #reset dice for the current player
 
@@ -184,16 +190,13 @@ def game(numOfPlayers):
         
 
 
-        ##### part (5): game response for player's action #####
+        ##### part (4): game response for player's (or computer) action #####
 
         for event in pygame.event.get():
             #if a player clicks X or main menu button, it will pop up a warning message and then exit to main menu
             if event.type == pygame.QUIT or (event.type == pygame.MOUSEBUTTONUP and mainMenuButton.isHovering(mousePosition)):
                 if exitWarning():
                     return
-                
-            # if event.type == event.type == pygame.MOUSEBUTTONUP and gameStatsButton.isHovering(mousePosition):
-            #     gameStats()
 
             #if the dice was clicked while it is available, it will produce a random value and show it on screen
             if event.type == pygame.MOUSEBUTTONUP and dice.isHovering(mousePosition) and dice.available:
@@ -330,12 +333,6 @@ def gameOver():
         #refresh the window
         pygame.display.flip()
         clock.tick(60)    
-
-
-
-def gameStats():
-    pass
-    # TODO
 
 
 

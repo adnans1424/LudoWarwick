@@ -19,6 +19,9 @@ class Player():
         self.nextPlayer = None
         self.previousPlayer = None
 
+        #to create a computer player
+        self.automized = False
+
         #to help determine the action status of the player
         self.anotherMove = True
 
@@ -35,7 +38,7 @@ class Player():
 
     #returns whether the player can make any further actions
     #false if the player is not eligible for making a move, or cannot make a valid move with their tokens
-    def action(self, diceValue):
+    def actionsAvailable(self, diceValue):
 
         if not self.anotherMove:
             return False
