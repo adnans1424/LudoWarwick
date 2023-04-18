@@ -1,5 +1,6 @@
-import pygame
 import random
+import pygame
+from pygame.image import load
 from button import Button
 dir = "GameFiles/{}.png"
 
@@ -12,13 +13,13 @@ class Dice(Button):
     outcome = 0
 
     #dice images
-    faces = [pygame.image.load(dir.format("dice_null")),
-             pygame.image.load(dir.format("dice_1")),
-             pygame.image.load(dir.format("dice_2")),
-             pygame.image.load(dir.format("dice_3")),
-             pygame.image.load(dir.format("dice_4")),
-             pygame.image.load(dir.format("dice_5")),
-             pygame.image.load(dir.format("dice_6")),]
+    faces = [load(dir.format("dice_null")),
+             load(dir.format("dice_1")),
+             load(dir.format("dice_2")),
+             load(dir.format("dice_3")),
+             load(dir.format("dice_4")),
+             load(dir.format("dice_5")),
+             load(dir.format("dice_6")),]
     
     
     #initialize as a button
