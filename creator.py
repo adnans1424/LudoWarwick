@@ -27,6 +27,7 @@ class TokenCreator():
                         [load(dir.format("green2_token")), load(dir.format("green2_token_small"))],
                         [load(dir.format("green3_token")), load(dir.format("green3_token_small"))],
                         [load(dir.format("green4_token")), load(dir.format("green4_token_small"))]]}
+    highlight = load(dir.format("token_highlight"))
     
     #these two variables hold necessary data to initialize the tokens
     firstSquare = {"red": 0, "blue": 13, "yellow": 26, "green": 39} #the first square to start per color

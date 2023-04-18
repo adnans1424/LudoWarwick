@@ -49,3 +49,7 @@ class Player():
             
         return False
         
+    
+    #this is an algorithm designed to make a decision on which token to play for the computer player
+    def play(self, dice):
+        pass

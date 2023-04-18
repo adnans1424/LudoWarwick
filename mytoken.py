@@ -102,6 +102,9 @@ class Token(Button):
     
     #this function returns whether this token has any valid moves based on the dice value
     def isValid(self, diceValue):
+
+        if diceValue == 0:
+            return False
         
         #if it is at the begining and the dice value is not 6
         if self.current == 0 and diceValue != 6:

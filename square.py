@@ -19,7 +19,7 @@ class Square():
         self.tokens.remove(token)
 
     #to render images on the square
-    def renderImage(self, gameSetup, screen):
+    def renderImage(self, gameSetup, screen, player, dice):
 
         if self.tokens:
 
@@ -47,3 +47,11 @@ class Square():
                     screen.blit(gameSetup.images[color][quantity - 1][0], self.position)
 
             #(for more details on accessing token images, look at creator.py)
+
+
+
+
+            #to highlihgt the available tokens for the player
+            #highlight only for the current player and if token has a valid move
+            if player.color in track.keys() and self.tokens[0].isValid(dice.outcome):
+                screen.blit(gameSetup.highlight, self.position)

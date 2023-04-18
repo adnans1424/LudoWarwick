@@ -4,7 +4,6 @@ from button import Button
 from dice import Dice
 from creator import TokenCreator
 from player import Player
-from computer import Computer
 dir = "GameAssets/{}.png"
 
 
@@ -153,7 +152,7 @@ def game(numOfPlayers, computer):
 
         #render the graphics of every square on the gameboard
         for square in gameSetup.record:
-            square.renderImage(gameSetup, screen)
+            square.renderImage(gameSetup, screen, currentPlayer, dice)
 
         #render the awards images for the winners
         #each winner will have an award image based on their place (e.g. first place will get "first award")
@@ -191,6 +190,11 @@ def game(numOfPlayers, computer):
 
         ##### part (4): game response for player's (or computer) action #####
 
+        #for computer player
+        if currentPlayer.automized:
+            currentPlayer.play(dice)
+
+        #for human player
         for event in pygame.event.get():
             #if a player clicks X or main menu button, it will pop up a warning message and then exit to main menu
             if event.type == pygame.QUIT or (event.type == pygame.MOUSEBUTTONUP and mainMenuButton.isHovering(mousePosition)):
