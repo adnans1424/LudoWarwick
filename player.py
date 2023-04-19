@@ -60,7 +60,6 @@ class Player():
         #roll the dice
         pygame.time.wait(1000)
         dice.getRandom(screen)
-        pygame.time.wait(1000)
 
         #to eliminate invalid tokens
         validTokens = []

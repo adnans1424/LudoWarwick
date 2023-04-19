@@ -39,16 +39,11 @@ class Dice(Button):
         #the moment a dice is clicked, it disables itself, until it gets reset in the game flow
         self.available = False
 
-        #this loop purpose is show an animation for rolling a dice, by displaying 10 random value,
-        #but it only returns the last one
-        for i in range(1):
+        self.outcome = random.randint(1, 6)
 
-            self.outcome = random.randint(1, 6)
-
-            self.update(screen)
-
-            pygame.display.flip()
-            pygame.time.wait(150)
+        self.update(screen)
+        pygame.display.flip()
+        pygame.time.wait(450)
 
         return self.outcome
     

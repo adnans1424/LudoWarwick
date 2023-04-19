@@ -209,7 +209,7 @@ def game(numOfPlayers, computer):
                 if exitWarning():
                     return
                 
-            if currentPlayer.automized:#to stop human player from bothering the computer when playing :)
+            if currentPlayer.automized: #to stop human player from bothering the computer when playing :)
                 continue
 
             #if the dice was clicked while it is available, it will produce a random value and show it on screen
@@ -223,7 +223,6 @@ def game(numOfPlayers, computer):
                 if event.type == pygame.MOUSEBUTTONUP and token.isHovering(mousePosition) and not dice.available and token.isValid(dice.outcome) and currentPlayer.actionsAvailable(dice.outcome):
                     
                     token.move(currentPlayer, dice)
-
                     break
         #############################################################
 
