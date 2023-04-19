@@ -208,6 +208,9 @@ def game(numOfPlayers, computer):
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == 27) or (event.type == pygame.MOUSEBUTTONUP and mainMenuButton.isHovering(mousePosition)):
                 if exitWarning():
                     return
+                
+            if currentPlayer.automized:#to stop human player from bothering the computer when playing :)
+                continue
 
             #if the dice was clicked while it is available, it will produce a random value and show it on screen
             if event.type == pygame.MOUSEBUTTONUP and dice.isHovering(mousePosition) and dice.available:
