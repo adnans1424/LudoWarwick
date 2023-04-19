@@ -82,7 +82,7 @@ class Player():
         for token in validTokens:
             #is there any token that can move to a safe square?
             try:
-                if token.path[token.current + dice.outcome].safe:
+                if token.path[token.current + dice.outcome].safe and (token.current + dice.outcome) < 52:
                     token.move(self, dice)
                     return
             except:
