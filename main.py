@@ -213,7 +213,7 @@ def game(numOfPlayers, computer):
                 #if the token was clicked while the dice is NOT available and it is a valid move, that token will be played
                 if event.type == pygame.MOUSEBUTTONUP and token.isHovering(mousePosition) and not dice.available and token.isValid(dice.outcome) and currentPlayer.actionsAvailable(dice.outcome):
                     
-                    token.move(currentPlayer, dice.outcome, dice)
+                    token.move(currentPlayer, dice)
 
                     break
         #############################################################
