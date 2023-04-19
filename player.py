@@ -67,6 +67,7 @@ class Player():
             if token.isValid(dice.outcome):
                 validTokens.append(token)
 
+
         #here is the algorithm (for more details, look at the project report)
 
         #is dice 6?

@@ -4,8 +4,8 @@ The objective of the game is to take all your tokens from the base to the end sq
 
 Every turn starts by rolling the dice, then you can move one of your tokens by EXACTLY as many steps as the dice says
 
-Rolling the dice again:
-then if the dice face was 6, you are eligible to roll the dice again.
+Rolling the dice again after moving a token:
+if the dice face was 6, you are eligible to roll the dice again.
 if there was another token in the square you landed on, you capture that square and you are eligible to roll the dice again.
 if you manage to get on of your tokens to the end, then you are eligible to roll the dice again.
 
