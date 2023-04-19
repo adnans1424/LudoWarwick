@@ -5,6 +5,9 @@ from button import Button
 #a Token object inherits Button class, because a token is clickable as a button
 class Token(Button):
 
+    #a counter to keep track of the order of winners (Ludo has three winners)
+    winnerPlace = 0
+
     def __init__(self, gameSetup, color, tokenNumber):
 
         self.color = color
@@ -54,8 +57,8 @@ class Token(Button):
                 dice.makeAvailable(player)
 
             else:
-                player.place = winnerPlace
-                winnerPlace += 1 #increment the value for next winner
+                player.place = Token.winnerPlace
+                Token.winnerPlace += 1 #increment the value for next winner
 
                 #this will remove the current player from the linked list
                 #remove the references to the current player from neighbour players on the list

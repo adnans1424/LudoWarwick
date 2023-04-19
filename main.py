@@ -104,8 +104,6 @@ def game(numOfPlayers, computer):
                                                   load(dir.format("mainmenu_button_big_dim")))
     #a dice
     dice = Dice()
-    #a counter to keep track of the order of winners (Ludo has three winners)
-    winnerPlace = 0
     #images for the winners
     awardsImages = [load(dir.format("one")), load(dir.format("two")), load(dir.format("three"))]
     
@@ -137,7 +135,29 @@ def game(numOfPlayers, computer):
 
     #game loop
     while True:
-        ##### part (2): refresh all graphics on screen #####
+        ##### part (2): check game status #####
+
+        #in the linked list, if a player is refering to themselves, that means they are the last one
+        #and they lose and game ends
+        if currentPlayer == currentPlayer.nextPlayer:
+            pygame.time.wait(1000)
+            gameOver()
+            return
+
+        #if the current player has no more actions to make and the dice is not available, that means their turn ends
+        if not currentPlayer.actionsAvailable(dice.outcome) and not dice.available:
+            currentPlayer = currentPlayer.nextPlayer #go to next player's turn
+            dice.makeAvailable(currentPlayer) #reset dice for the current player
+
+            
+            print("player changed")
+        ##########################################################
+
+        
+        
+
+
+        ##### part (3): refresh all graphics on screen #####
 
         #display the board screen
         screen.blit(board, (0,0))
@@ -162,39 +182,25 @@ def game(numOfPlayers, computer):
             #a player wins when having four tokens at the end
             if player.atEnd == 4:
                 screen.blit(awardsImages[player.place], player.basePosition)
+
+
+        #to apply all changes on screen and refresh the window
+        pygame.display.flip()
+
+        #to restrict the refresh rate to 60 frames/second
+        clock.tick(60)
         #########################################################
 
 
 
 
 
-        ##### part (3): check game status #####
-
-        #in the linked list, if a player is refering to themselves, that means they are the last one
-        #and they lose and game ends
-        if currentPlayer == currentPlayer.nextPlayer:
-            pygame.time.wait(1000)
-            gameOver()
-            return
-
-        #if the current player has no more actions to make and the dice is not available, that means their turn ends
-        if not currentPlayer.actionsAvailable(dice.outcome) and not dice.available:
-            currentPlayer = currentPlayer.nextPlayer #go to next player's turn
-            dice.makeAvailable(currentPlayer) #reset dice for the current player
-
-            
-            print("player changed")
-        ##########################################################
-
-        
-        
-
 
         ##### part (4): game response for player's (or computer) action #####
 
         #for computer player
         if currentPlayer.automized:
-            currentPlayer.play(dice)
+            currentPlayer.play(screen, dice)
 
         #for human player
         for event in pygame.event.get():
@@ -219,11 +225,7 @@ def game(numOfPlayers, computer):
         #############################################################
 
 
-        #to apply all changes on screen and refresh the window
-        pygame.display.flip()
 
-        #to restrict the refresh rate to 60 frames/second
-        clock.tick(60)
 
 
 
