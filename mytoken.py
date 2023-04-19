@@ -44,7 +44,7 @@ class Token(Button):
         if dice.outcome == 6:
             dice.makeAvailable(player)
 
-        #if the token reaches the end, the player is eligble for another move, or the player wins if all tokens are at the end
+        #if the token reaches the end, the player is eligible for another move, or the player wins if all tokens are at the end
         if self.finished():
 
             player.atEnd += 1
