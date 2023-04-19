@@ -1,0 +1,14 @@
+The game has four players (red, blue, yellow, green) or two players (red, blue), all players compete each other.
+
+The objective of the game is to take all your tokens from the base to the end square before everyone.
+
+Every turn starts by rolling the dice, then you can move one of your tokens by EXACTLY as many steps as the dice says
+
+Rolling the dice again:
+then if the dice face was 6, you are eligible to roll the dice again.
+if there was another token in the square you landed on, you capture that square and you are eligible to roll the dice again.
+if you manage to get on of your tokens to the end, then you are eligible to roll the dice again.
+
+Special rules:
+To move your tokens from the base, you need to roll the dice and get a 6.
+There are safe squares in the game, where capturing is not allowed. These are the colored squares and the dark squares.
