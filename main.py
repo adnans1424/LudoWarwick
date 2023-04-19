@@ -5,6 +5,8 @@ from dice import Dice
 from creator import TokenCreator
 from player import Player
 dir = "GameAssets/{}.png"
+flag = 0
+# flag = pygame.FULLSCREEN | pygame.SCALED
 
 
 #game setup
@@ -12,7 +14,7 @@ pygame.init()
 #A Clock object is used to control the framerate
 clock = pygame.time.Clock()
 #screen is used to display graphics on the window (800px * 800px)
-screen = pygame.display.set_mode((800, 800))
+screen = pygame.display.set_mode((800, 800), flags = flag)
 
 
 #After the initialization, the game is devided into functions, where
@@ -30,13 +32,13 @@ def mainMenu():
     #background image
     mainMenu = load(dir.format("main_menu_background"))
     #Button objects
-    onePlayerButton = Button((208, 270), (385, 110), load(dir.format("computer_button_small")),
+    onePlayerButton = Button((208, 250), (385, 110), load(dir.format("computer_button_small")),
                                                       load(dir.format("computer_button_big")),
                                                       load(dir.format("computer_button_big_dim")))
-    twoPlayersButton = Button((208, 400), (385, 110), load(dir.format("2players_button_small")),
+    twoPlayersButton = Button((208, 380), (385, 110), load(dir.format("2players_button_small")),
                                                       load(dir.format("2players_button_big")),
                                                       load(dir.format("2players_button_big_dim")))
-    fourPlayersButton = Button((208, 530), (385, 110), load(dir.format("4players_button_small")),
+    fourPlayersButton = Button((208, 510), (385, 110), load(dir.format("4players_button_small")),
                                                        load(dir.format("4players_button_big")),
                                                        load(dir.format("4players_button_big_dim")))
 
@@ -62,8 +64,8 @@ def mainMenu():
         #Thus, the code here is resposible for game response to player's action
         for event in pygame.event.get():
 
-            #if the user clicks X, it will exit the main menu and quit the game
-            if event.type == pygame.QUIT:
+            #if the user clicks X or ESC, it will exit the main menu and quit the game
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == 27):
                 return
 
             #if the user clicks while hovering on the buttons, it will enter the game screen.
@@ -196,8 +198,8 @@ def game(numOfPlayers, computer):
 
         #for human player
         for event in pygame.event.get():
-            #if a player clicks X or main menu button, it will pop up a warning message and then exit to main menu
-            if event.type == pygame.QUIT or (event.type == pygame.MOUSEBUTTONUP and mainMenuButton.isHovering(mousePosition)):
+            #if a player clicks X, ESC or main menu button, it will pop up a warning message and then exit to main menu
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == 27) or (event.type == pygame.MOUSEBUTTONUP and mainMenuButton.isHovering(mousePosition)):
                 if exitWarning():
                     return
 
