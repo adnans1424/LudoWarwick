@@ -22,9 +22,10 @@ class Token(Button):
 
 
     #this function moves the token to a different square, and apply the rules of the game
-    def move(self, player, steps, dice):
+    def move(self, player, dice):
 
         player.anotherMove = False
+        steps = dice.outcome
 
         #per game rules, first move must be one step
         if self.current == 0:

@@ -9,9 +9,6 @@ dir = "GameAssets/{}.png"
 #a Dice object inherits Button class, because a dice is clickable as a button
 class Dice(Button):
 
-    available = True
-    outcome = 0
-
     #dice images
     faces = [load(dir.format("dice_null")),
              load(dir.format("dice_1")),
@@ -25,6 +22,9 @@ class Dice(Button):
     #initialize as a button
     def __init__(self):
         super().__init__((368, 703), (65, 65))
+
+        self.available = True
+        self.outcome = 0
 
 
     #override update() function, because a dice manages its appearance differently

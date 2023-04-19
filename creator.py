@@ -2,7 +2,7 @@ from pygame.image import load
 from square import Square
 dir = "GameAssets/{}.png"
 
-#TokenCreator class is responsible for creating a game setup, which all tokens can access
+#TokenCreator class is responsible for creating a game setup, which tokens use to get initiated
 class TokenCreator():
 
     #this is a 3D array to store the image data for tokens
@@ -51,10 +51,10 @@ class TokenCreator():
                           Square((425, 415)),            Square((425, 458)),            Square((425, 501)),            Square((425, 544), safe=True),
                           Square((425, 587)),            Square((425, 630)),            Square((382, 630)),            Square((339, 630))]
         
-        self.coloredArrays = {"red": [Square((382, 587)), Square((382, 544)), Square((382, 501)), Square((382, 458)), Square((382, 415)), Square((382, 372))],
-                              "yellow": [Square((382, 71)), Square((382, 114)), Square((382, 157)), Square((382, 200)), Square((382, 243)), Square((382, 286))],
-                              "blue": [Square((124, 329)), Square((167, 329)), Square((210, 329)), Square((253, 329)), Square((296, 329)), Square((339, 329))],
-                              "green": [Square((640, 329)), Square((597, 329)), Square((554, 329)), Square((511, 329)), Square((468, 329)), Square((425, 329))]}
+        self.coloredArrays = {"red": [Square((382, 587), safe=True), Square((382, 544), safe=True), Square((382, 501), safe=True), Square((382, 458), safe=True), Square((382, 415), safe=True), Square((382, 372), safe=True)],
+                              "yellow": [Square((382, 71), safe=True), Square((382, 114), safe=True), Square((382, 157), safe=True), Square((382, 200), safe=True), Square((382, 243), safe=True), Square((382, 286), safe=True)],
+                              "blue": [Square((124, 329), safe=True), Square((167, 329), safe=True), Square((210, 329), safe=True), Square((253, 329), safe=True), Square((296, 329), safe=True), Square((339, 329), safe=True)],
+                              "green": [Square((640, 329), safe=True), Square((597, 329), safe=True), Square((554, 329), safe=True), Square((511, 329), safe=True), Square((468, 329), safe=True), Square((425, 329), safe=True)]}
         
         #here is a record for all Square object in the game
         self.record = self.mainArray + self.coloredArrays["red"] + self.coloredArrays["blue"] + self.coloredArrays["yellow"] + self.coloredArrays["green"]
