@@ -58,7 +58,7 @@ class Player():
         Player.mergeSort(self.tokens)
 
         #roll the dice
-        pygame.time.wait(1000)
+        pygame.time.wait(800)
         dice.getRandom(screen)
 
         #to eliminate invalid tokens

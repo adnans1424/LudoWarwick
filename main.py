@@ -6,7 +6,7 @@ from creator import TokenCreator
 from player import Player
 dir = "GameAssets/{}.png"
 flag = 0
-# flag = pygame.FULLSCREEN | pygame.SCALED
+#flag = pygame.FULLSCREEN | pygame.SCALED
 
 
 #game setup
