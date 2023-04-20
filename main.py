@@ -2,7 +2,7 @@ import pygame
 from pygame.image import load
 from button import Button
 from dice import Dice
-from creator import TokenCreator
+from creator import Creator
 from player import Player
 dir = "GameAssets/{}.png"
 flag = 0
@@ -106,7 +106,7 @@ def game(numOfPlayers, computer):
     
 
     #to create an instance for the current game set
-    gameSetup = TokenCreator()
+    gameSetup = Creator()
 
     #initiate 2 or 4 players (depending on the game mode) with their appropriate color and data
     players = [Player(gameSetup, "red", (121, 455), load(dir.format("red_background"))),

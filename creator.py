@@ -2,8 +2,8 @@ from pygame.image import load
 from square import Square
 dir = "GameAssets/{}.png"
 
-#TokenCreator class is responsible for creating a game setup, which tokens use to get initiated
-class TokenCreator():
+#Creator class is responsible for creating a game setup, which tokens use to get initiated
+class Creator():
 
     #this is a 3D array to store the image data for tokens
     #dimension: ([color of token][number of tokens][image size])
