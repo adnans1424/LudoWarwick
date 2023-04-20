@@ -89,10 +89,6 @@ def mainMenu():
 
 #this is the game screen
 def game(numOfPlayers, computer):
-    #to create an instance for the current game set
-    gameSetup = TokenCreator()
-
-
     ##### part (1): load game data before the game loop #####
 
     #before the game loop, we load the game data needed
@@ -108,6 +104,9 @@ def game(numOfPlayers, computer):
     awardsImages = [load(dir.format("one")), load(dir.format("two")), load(dir.format("three"))]
     
     
+
+    #to create an instance for the current game set
+    gameSetup = TokenCreator()
 
     #initiate 2 or 4 players (depending on the game mode) with their appropriate color and data
     players = [Player(gameSetup, "red", (121, 455), load(dir.format("red_background"))),
