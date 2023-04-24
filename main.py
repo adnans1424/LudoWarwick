@@ -118,7 +118,7 @@ def game(numOfPlayers, computer):
         players[1].automized = True
 
 
-    #this creates a circular doubly linked lists, it is used to rotate turns between players,
+    #this creates a circular doubly linked list, it is used to rotate turns between players,
     #and to delete a player who finished the game
     for i in range(numOfPlayers):
         players[i].nextPlayer = players[(i+1) % numOfPlayers]
