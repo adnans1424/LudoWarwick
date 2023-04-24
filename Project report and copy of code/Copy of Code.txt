@@ -1,0 +1,936 @@
+in file: "main.py":
+
+import pygame
+from pygame.image import load
+from button import Button
+from dice import Dice
+from creator import Creator
+from player import Player
+dir = "GameAssets/{}.png"
+flag = 0
+#flag = pygame.FULLSCREEN | pygame.SCALED
+
+
+#game setup
+pygame.init()
+#A Clock object is used to control the framerate
+clock = pygame.time.Clock()
+#screen is used to display graphics on the window (800px * 800px)
+screen = pygame.display.set_mode((800, 800), flags = flag)
+
+
+#After the initialization, the game is devided into functions, where
+#each function has its own game loop. This method helps organizing
+#game screens. For example, we start with main menu screen, then
+#go to the game screen by calling game(4).
+
+
+
+
+#this is the main menu screen in which we start our game and end it
+def mainMenu():
+
+    #before the game loop, we load the game data needed
+    #background image
+    mainMenu = load(dir.format("main_menu_background"))
+    #Button objects
+    onePlayerButton = Button((208, 250), (385, 110), load(dir.format("computer_button_small")),
+                                                      load(dir.format("computer_button_big")),
+                                                      load(dir.format("computer_button_big_dim")))
+    twoPlayersButton = Button((208, 380), (385, 110), load(dir.format("2players_button_small")),
+                                                      load(dir.format("2players_button_big")),
+                                                      load(dir.format("2players_button_big_dim")))
+    fourPlayersButton = Button((208, 510), (385, 110), load(dir.format("4players_button_small")),
+                                                       load(dir.format("4players_button_big")),
+                                                       load(dir.format("4players_button_big_dim")))
+
+
+    #game loop
+    while True:
+        #dispaly the main menu background
+        screen.blit(mainMenu, (0,0))
+
+
+        #since Button objects interact with the mouse pointer, we need to store its data (it is used only for graphics)
+        mouseInput = pygame.mouse.get_pressed()
+        mousePosition = pygame.mouse.get_pos()
+        
+        #render the graphics of the buttons on the screen
+        onePlayerButton.update(screen, mousePosition, mouseInput)
+        twoPlayersButton.update(screen, mousePosition, mouseInput)
+        fourPlayersButton.update(screen, mousePosition, mouseInput)
+
+
+
+        #pygame.event.get() returns a list that contains any new interactions with the game.
+        #Thus, the code here is resposible for game response to player's action
+        for event in pygame.event.get():
+
+            #if the user clicks X or ESC, it will exit the main menu and quit the game
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == 27):
+                return
+
+            #if the user clicks while hovering on the buttons, it will enter the game screen.
+            if event.type == pygame.MOUSEBUTTONUP and onePlayerButton.isHovering(mousePosition):
+                game(2, True)
+
+            if event.type == pygame.MOUSEBUTTONUP and twoPlayersButton.isHovering(mousePosition):
+                game(2, False)
+
+            if event.type == pygame.MOUSEBUTTONUP and fourPlayersButton.isHovering(mousePosition):
+                game(4, False)
+
+
+        #to apply all changes on screen and refresh the window
+        pygame.display.flip()
+
+        #to restrict the refresh rate to 60 frames/second
+        clock.tick(60)
+
+
+
+#this is the game screen
+def game(numOfPlayers, computer):
+    ##### part (1): load game data before the game loop #####
+
+    #before the game loop, we load the game data needed
+    #a background image
+    board = load(dir.format("game_board"))
+    #Button object
+    mainMenuButton = Button((15, 719), (165, 66), load(dir.format("mainmenu_button_small")),
+                                                  load(dir.format("mainmenu_button_big")),
+                                                  load(dir.format("mainmenu_button_big_dim")))
+    #a dice
+    dice = Dice()
+    #images for the winners
+    awardsImages = [load(dir.format("one")), load(dir.format("two")), load(dir.format("three"))]
+    
+    
+
+    #to create an instance for the current game set
+    gameSetup = Creator()
+
+    #initiate 2 or 4 players (depending on the game mode) with their appropriate color and data
+    players = [Player(gameSetup, "red", (121, 455), load(dir.format("red_background"))),
+               Player(gameSetup, "yellow", (508, 68), load(dir.format("yellow_background")))]
+    if numOfPlayers == 4:
+        players.insert(1, Player(gameSetup, "blue", (121, 68), load(dir.format("blue_background"))))
+        players.insert(3, Player(gameSetup, "green", (508, 455), load(dir.format("green_background"))))
+    if computer: #if we are in computer mode
+        players[1].automized = True
+
+
+    #this creates a circular doubly linked list, it is used to rotate turns between players,
+    #and to delete a player who finished the game
+    for i in range(numOfPlayers):
+        players[i].nextPlayer = players[(i+1) % numOfPlayers]
+        players[i].previousPlayer = players[(i-1) % numOfPlayers]
+
+    #this variable represnt the player in the current turn
+    currentPlayer = players[0]
+    ########################################################
+
+
+
+
+
+    #game loop
+    while True:
+        ##### part (2): check game status #####
+
+        #in the linked list, if a player is refering to themselves, that means they are the last one
+        #and they lose and game ends
+        if currentPlayer == currentPlayer.nextPlayer:
+            pygame.time.wait(1000)
+            gameOver()
+            return
+
+        #if the current player has no more actions to make and the dice is not available, that means their turn ends
+        if not currentPlayer.actionsAvailable(dice.outcome) and not dice.available:
+            currentPlayer = currentPlayer.nextPlayer #go to next player's turn
+            dice.makeAvailable(currentPlayer) #reset dice for the current player
+
+            
+            print("player changed")
+        ##########################################################
+
+        
+        
+
+
+        ##### part (3): refresh all graphics on screen #####
+
+        #display the board screen
+        screen.blit(board, (0,0))
+        #display the current player's color behind the dice, that color helps the players to know whose turn it is
+        screen.blit(currentPlayer.diceBackground, (310, 688))
+        
+        #as explained before, mouse data is used to help update Button objects
+        mouseInput = pygame.mouse.get_pressed()
+        mousePosition = pygame.mouse.get_pos()
+        
+        #render the graphics of the dice and buttons on the screen
+        dice.update(screen)
+        mainMenuButton.update(screen, mousePosition, mouseInput)
+
+        #render the graphics of every square on the gameboard
+        for square in gameSetup.record:
+            square.renderImage(gameSetup, screen, currentPlayer, dice)
+
+        #render the awards images for the winners
+        #each winner will have an award image based on their place (e.g. first place will get "first award")
+        for player in players:
+            #a player wins when having four tokens at the end
+            if player.atEnd == 4:
+                screen.blit(awardsImages[player.place], player.basePosition)
+
+
+        #to apply all changes on screen and refresh the window
+        pygame.display.flip()
+
+        #to restrict the refresh rate to 60 frames/second
+        clock.tick(60)
+        #########################################################
+
+
+
+
+
+
+        ##### part (4): game response for player's (or computer) action #####
+
+        #for computer player
+        if currentPlayer.automized:
+            currentPlayer.play(screen, dice)
+
+        #for human player
+        for event in pygame.event.get():
+            #if a player clicks X, ESC or main menu button, it will pop up a warning message and then exit to main menu
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == 27) or (event.type == pygame.MOUSEBUTTONUP and mainMenuButton.isHovering(mousePosition)):
+                if exitWarning():
+                    return
+                
+            if currentPlayer.automized: #to stop human player from bothering the computer when playing :)
+                continue
+
+            #if the dice was clicked while it is available, it will produce a random value and show it on screen
+            if event.type == pygame.MOUSEBUTTONUP and dice.isHovering(mousePosition) and dice.available:
+                dice.getRandom(screen)
+
+            #to check if the current player has interacted with their tokens, we iterate through their tokens
+            for token in currentPlayer.tokens:
+
+                #if the token was clicked while the dice is NOT available and it is a valid move, that token will be played
+                if event.type == pygame.MOUSEBUTTONUP and token.isHovering(mousePosition) and not dice.available and token.isValid(dice.outcome) and currentPlayer.actionsAvailable(dice.outcome):
+                    
+                    token.move(currentPlayer, dice)
+                    break
+        #############################################################
+
+
+
+
+
+
+#this is the exit warning screen
+def exitWarning():
+
+    #similar to main menu
+    #load the game data needed
+    dimming = load(dir.format("dim_background"))
+    messagebox = load(dir.format("exit_warning"))
+    yesButton = Button((230, 430), (165, 66), load(dir.format("yes_button_small")),
+                                                  load(dir.format("yes_button_big")),
+                                                  load(dir.format("yes_button_big_dim")))
+    noButton = Button((405, 430), (165, 66), load(dir.format("no_button_small")),
+                                                    load(dir.format("no_button_big")),
+                                                    load(dir.format("no_button_big_dim")))
+
+
+
+    #dimming effects need to be rendered once only
+    screen.blit(dimming, (0,0))
+
+    #game loop
+    while True:
+
+        #render images
+        screen.blit(messagebox, (0,0))
+
+        mouseInput = pygame.mouse.get_pressed()
+        mousePosition = pygame.mouse.get_pos()
+        
+        yesButton.update(screen, mousePosition, mouseInput)
+        noButton.update(screen, mousePosition, mouseInput)
+
+
+        for event in pygame.event.get():
+
+            #wait for the players to confirm exiting to main menu
+            if event.type == pygame.MOUSEBUTTONUP and yesButton.isHovering(mousePosition):
+                return True
+
+            if event.type == pygame.MOUSEBUTTONUP and noButton.isHovering(mousePosition):
+                return False
+            
+        
+        #refresh the window
+        pygame.display.flip()
+        clock.tick(60)
+
+
+
+#this is the game over screen
+def gameOver():
+
+    #similar to main menu
+    #load the game data needed
+    dimming = load(dir.format("dim_background"))
+    messagebox = load(dir.format("gameover"))
+    mainMenuButton = Button((318, 430), (165, 66), load(dir.format("mainmenu_button_small")),
+                                                  load(dir.format("mainmenu_button_big")),
+                                                  load(dir.format("mainmenu_button_big_dim")))
+
+
+
+    #dimming effects need to be rendered once only
+    screen.blit(dimming, (0,0))
+
+    #game loop
+    while True:
+
+        #render images
+        screen.blit(messagebox, (0,0))
+
+        mouseInput = pygame.mouse.get_pressed()
+        mousePosition = pygame.mouse.get_pos()
+        
+        mainMenuButton.update(screen, mousePosition, mouseInput)
+
+
+        for event in pygame.event.get():
+
+            #wait until the main menu button is pressed
+            if event.type == pygame.MOUSEBUTTONUP and mainMenuButton.isHovering(mousePosition):
+                return
+            
+        
+        #refresh the window
+        pygame.display.flip()
+        clock.tick(60)    
+
+
+
+mainMenu()
+
+pygame.quit()
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+in file "button.py":
+
+#Button class defines the properties and behaviours of a button
+class Button():
+
+    def __init__(self, position, dimensions, image=None, imageBig=None, imageDim=None):
+        self.image = image
+        self.imageBig = imageBig
+        self.imageDim = imageDim
+
+        self.dimensions = dimensions
+
+        #position represent the position of the left upper corner
+        self.position = position
+        #opposite position represent the position of the right bottom corner,
+        self.oppositePosition = (position[0] + dimensions[0], position[1] + dimensions[1])
+
+
+    #this function render the image of the button
+    def update(self, screen, mousePosition, mouseInput):
+
+        #button appearance changes depending on the mouse pointer
+        #if the button is pressed, it appears dim
+        if self.isHovering(mousePosition) and self.isPressed(mouseInput):
+            screen.blit(self.imageDim, self.position)
+        
+        #if the button is pointed at but not pressed, it appears large
+        elif self.isHovering(mousePosition):
+            screen.blit(self.imageBig, self.position)
+
+        #or appears normally otherwise
+        else:
+            screen.blit(self.image, self.position)
+
+
+    #this function returns whether the mouse is pointing at the button
+    def isHovering(self, mousePosition):
+
+        #using the position and opposite position, we can determine the area of the button,
+        #and then determine whether the mouse pointer is positioned on the button
+        if mousePosition[0] in range(self.position[0], self.oppositePosition[0]) and mousePosition[1] in range(self.position[1], self.oppositePosition[1]):
+            return True
+        
+        return False
+    
+    
+    #this function returns whether the mouse is pressing the button
+    def isPressed(self, mouseInput):
+
+        if mouseInput[0] is True:
+            return True
+        
+        return False
+    
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+in file "creator.py":
+
+from pygame.image import load
+from square import Square
+dir = "GameAssets/{}.png"
+
+#Creator class is responsible for creating a game setup, which tokens use to get initiated
+class Creator():
+
+    #this is a 3D array to store the image data for tokens
+    #dimension: ([color of token][number of tokens][image size])
+    #it has been designed this way for easy access when rendering images of tokens
+    images = {"red": [[load(dir.format("red_token")), load(dir.format("red_token_small"))],
+                      [load(dir.format("red2_token")), load(dir.format("red2_token_small"))],
+                      [load(dir.format("red3_token")), load(dir.format("red3_token_small"))],
+                      [load(dir.format("red4_token")), load(dir.format("red4_token_small"))]],
+
+              "blue": [[load(dir.format("blue_token")), load(dir.format("blue_token_small"))],
+                       [load(dir.format("blue2_token")), load(dir.format("blue2_token_small"))],
+                       [load(dir.format("blue3_token")), load(dir.format("blue3_token_small"))],
+                       [load(dir.format("blue4_token")), load(dir.format("blue4_token_small"))]],
+                      
+              "yellow": [[load(dir.format("yellow_token")), load(dir.format("yellow_token_small"))],
+                         [load(dir.format("yellow2_token")), load(dir.format("yellow2_token_small"))],
+                         [load(dir.format("yellow3_token")), load(dir.format("yellow3_token_small"))],
+                         [load(dir.format("yellow4_token")), load(dir.format("yellow4_token_small"))]],
+                         
+              "green": [[load(dir.format("green_token")), load(dir.format("green_token_small"))],
+                        [load(dir.format("green2_token")), load(dir.format("green2_token_small"))],
+                        [load(dir.format("green3_token")), load(dir.format("green3_token_small"))],
+                        [load(dir.format("green4_token")), load(dir.format("green4_token_small"))]]}
+    highlight = load(dir.format("token_highlight"))
+    
+    #these two variables hold necessary data to initialize the tokens
+    firstSquare = {"red": 0, "blue": 13, "yellow": 26, "green": 39} #the first square to start per color
+    basePosition = {"red": (152, 486), "blue": (152, 99), "yellow": (539, 99), "green": (539, 486)} #the position of the base per color
+    
+
+    def __init__(self):
+
+        #when creating a game instance, we must declare all squares, in the main array and specific-color arrays
+        self.mainArray = [Square((339, 587), safe=True), Square((339, 544)),            Square((339, 501)),            Square((339, 458)),
+                          Square((339, 415)),            Square((296, 372)),            Square((253, 372)),            Square((210, 372)),
+                          Square((167, 372), safe=True), Square((124, 372)),            Square((81, 372)),             Square((81, 329)),
+                          Square((81, 286)),             Square((124, 286), safe=True), Square((167, 286)),            Square((210, 286)),
+                          Square((253, 286)),            Square((296, 286)),            Square((339, 243)),            Square((339, 200)),
+                          Square((339, 157)),            Square((339, 114), safe=True), Square((339, 71)),             Square((339, 28)),
+                          Square((382, 28)),             Square((425, 28)),             Square((425, 71), safe=True),  Square((425, 114)),
+                          Square((425, 157)),            Square((425, 200)),            Square((425, 243)),            Square((468, 286)),
+                          Square((511, 286)),            Square((554, 286)),            Square((597, 286), safe=True), Square((640, 286)),
+                          Square((683, 286)),            Square((683, 329)),            Square((683, 372)),            Square((640, 372), safe=True),
+                          Square((597, 372)),            Square((554, 372)),            Square((511, 372)),            Square((468, 372)),
+                          Square((425, 415)),            Square((425, 458)),            Square((425, 501)),            Square((425, 544), safe=True),
+                          Square((425, 587)),            Square((425, 630)),            Square((382, 630)),            Square((339, 630))]
+        
+        self.coloredArrays = {"red": [Square((382, 587), safe=True), Square((382, 544), safe=True), Square((382, 501), safe=True), Square((382, 458), safe=True), Square((382, 415), safe=True), Square((382, 372), safe=True)],
+                              "yellow": [Square((382, 71), safe=True), Square((382, 114), safe=True), Square((382, 157), safe=True), Square((382, 200), safe=True), Square((382, 243), safe=True), Square((382, 286), safe=True)],
+                              "blue": [Square((124, 329), safe=True), Square((167, 329), safe=True), Square((210, 329), safe=True), Square((253, 329), safe=True), Square((296, 329), safe=True), Square((339, 329), safe=True)],
+                              "green": [Square((640, 329), safe=True), Square((597, 329), safe=True), Square((554, 329), safe=True), Square((511, 329), safe=True), Square((468, 329), safe=True), Square((425, 329), safe=True)]}
+        
+        #here is a record for all Square object in the game
+        self.record = self.mainArray + self.coloredArrays["red"] + self.coloredArrays["blue"] + self.coloredArrays["yellow"] + self.coloredArrays["green"]
+
+
+    #this function creates a specific path for each token in the game
+    def getPath(self, color, tokenNumber):
+
+        #the base square
+        newSquare = Square(self.getbasePosition(color, tokenNumber))
+        self.record.append(newSquare)
+
+        path = [newSquare]
+
+
+        #then add the main array squares, with the correct start
+        for i in range(self.firstSquare[color], self.firstSquare[color] + 51):
+            path.append(self.mainArray[i%52])
+
+        #then add the specific-color array
+        for square in self.coloredArrays[color]:
+            path.append(square)
+
+        return path
+    
+
+    #this is a helper function to get the very specific position for each token in the base
+    def getbasePosition(self, color, tokenNumber):
+
+        xOffset = self.basePosition[color][0] + (tokenNumber//2)*73
+        yOffset = self.basePosition[color][1] + (tokenNumber%2)*73
+
+        return (xOffset, yOffset)
+
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+in file "dice.py":
+
+import random
+import pygame
+from pygame.image import load
+from button import Button
+dir = "GameAssets/{}.png"
+
+
+#Dice class defines the properties and behaviours of the dice
+#a Dice object inherits Button class, because a dice is clickable as a button
+class Dice(Button):
+
+    #dice images
+    faces = [load(dir.format("dice_null")),
+             load(dir.format("dice_1")),
+             load(dir.format("dice_2")),
+             load(dir.format("dice_3")),
+             load(dir.format("dice_4")),
+             load(dir.format("dice_5")),
+             load(dir.format("dice_6")),]
+    
+    
+    #initialize as a button
+    def __init__(self):
+        super().__init__((368, 703), (65, 65))
+
+        self.available = True
+        self.outcome = 0
+
+
+    #override update() function, because a dice manages its appearance differently
+    #render the image corresponding to the outcome of the dice
+    def update(self, screen):
+        screen.blit(self.faces[self.outcome], (368, 705))
+
+
+    #this function returns a randomized value for a dice
+    def getRandom(self, screen):
+
+        #the moment a dice is clicked, it disables itself, until it gets reset in the game flow
+        self.available = False
+
+        self.outcome = random.randint(1, 6)
+
+        self.update(screen)
+        pygame.display.flip()
+        pygame.time.wait(450)
+
+        return self.outcome
+    
+
+    #this function resets the dice and the current player status
+    def makeAvailable(self, player):
+        self.available = True
+        self.outcome = 0
+
+        player.anotherMove = True
+
+
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+in file "mytoken.py":
+
+from button import Button
+
+
+#Token class defines the properties and behaviours of a token
+#a Token object inherits Button class, because a token is clickable as a button
+class Token(Button):
+
+    #a counter to keep track of the order of winners (Ludo has three winners)
+    winnerPlace = 0
+
+    def __init__(self, gameSetup, color, tokenNumber):
+
+        self.color = color
+        #path is a list of Square, which the token must go through in order to reach the end
+        self.path = gameSetup.getPath(color, tokenNumber)
+        #all tokens start at the base
+        self.current = 0
+
+
+        super().__init__(self.path[self.current].position, (37,37))
+        
+
+        #token must add itself to the square, on which, it exists
+        self.path[self.current].addToken(self)
+
+
+    #this function moves the token to a different square, and apply the rules of the game
+    def move(self, player, dice):
+
+        player.anotherMove = False
+        steps = dice.outcome
+
+        #per game rules, first move must be one step
+        if self.current == 0:
+            steps = 1
+        
+        #the token must remove itself from the old square
+        self.path[self.current].removeToken(self)
+
+        #move
+        self.current += steps
+        
+        #capture other tokens if possible, and if so, the player is eligible for another move
+        if self.capture():
+            dice.makeAvailable(player)
+
+        #if the dice value is 6, the player is eligible for another move
+        if dice.outcome == 6:
+            dice.makeAvailable(player)
+
+        #if the token reaches the end, the player is eligible for another move, or the player wins if all tokens are at the end
+        if self.finished():
+
+            player.atEnd += 1
+
+            if player.atEnd < 4:
+                dice.makeAvailable(player)
+
+            else:
+                player.place = Token.winnerPlace
+                Token.winnerPlace += 1 #increment the value for next winner
+
+                #this will remove the current player from the linked list
+                #remove the references to the current player from neighbour players on the list
+                player.previousPlayer.nextPlayer = player.nextPlayer
+                player.nextPlayer.previousPlayer = player.previousPlayer
+
+        #finally, the token must add itself to the new square
+        self.path[self.current].addToken(self)
+
+
+    #this function tries to capture other tokens if possible, and returns whether it did
+    def capture(self):
+
+        captured = False
+
+        #these are all the condition, in which capturing is not possible (safe square, empty square, same color tokens)
+        #reminder: in a non-safe square, it is not possible for different colors to coexist
+        if self.path[self.current].safe or not self.path[self.current].tokens or self.path[self.current].tokens[0].color == self.color:
+            return captured
+
+        #in this loop, all other tokens will be put back in their base
+        while self.path[self.current].tokens:
+
+            otherToken = self.path[self.current].tokens[0]
+
+            otherToken.current = 0
+            otherToken.path[otherToken.current].addToken(otherToken)
+            self.path[self.current].removeToken(otherToken)
+
+            captured = True
+
+        return captured
+    
+    
+    #this function returns whether the token has reached the end
+    def finished(self):
+        return self.current == 57
+
+
+    #this function changes the attribute of the position of the token
+    def changePosition(self, newPosition):
+        self.position = newPosition
+        self.oppositePosition = (self.position[0] + self.dimensions[0], self.position[1] + self.dimensions[1])
+
+    
+    #this function returns whether this token has any valid moves based on the dice value
+    def isValid(self, diceValue):
+
+        if diceValue == 0:
+            return False
+        
+        #if it is at the begining and the dice value is not 6
+        if self.current == 0 and diceValue != 6:
+            return False
+        
+        #if the dice value is greater than the remaining path
+        if (57 - self.current) < diceValue:
+            return False
+        
+        return True
+
+
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+in file "player.py":
+
+import pygame
+from mytoken import Token
+
+
+#Player class defines the properties and behaviours of a player
+class Player():
+
+    def __init__(self, gameSetup, color, basePosition, diceBackground):
+        self.color = color
+        self.basePosition = basePosition
+        self.diceBackground = diceBackground
+        self.tokens = []
+
+        #represent how many tokens at the end
+        self.atEnd = 0
+        #represent which place the player won
+        self.place = None
+
+        #these two attributes are for creating a linked list with other players
+        self.nextPlayer = None
+        self.previousPlayer = None
+
+        #to help determine the action status of the player
+        self.anotherMove = True
+
+        #to create a computer player
+        self.automized = False
+
+        #finally, initialize 4 tokens.
+        for i in range(4):
+            self.tokens.append(Token(gameSetup, color, i))
+    
+
+    #this function is used to create a linked list
+    def addPlayer(self, nextPlayer):
+        self.nextPlayer = nextPlayer
+        nextPlayer.previousPlayer = self
+
+
+    #returns whether the player can make any further actions
+    #false if the player is not eligible for making a move, or cannot make a valid move with their tokens
+    def actionsAvailable(self, diceValue):
+
+        if not self.anotherMove:
+            return False
+        
+        for token in self.tokens:
+            if token.isValid(diceValue):
+                return True
+            
+        return False
+        
+    
+    #this is an algorithm designed to make a decision on which token to play for the computer player
+    def play(self, screen, dice):
+        
+        #to sort the four tokens from furthest to closest to base
+        Player.mergeSort(self.tokens)
+
+        #roll the dice
+        pygame.time.wait(800)
+        dice.getRandom(screen)
+
+        #to eliminate invalid tokens
+        validTokens = []
+        for token in self.tokens:
+            if token.isValid(dice.outcome):
+                validTokens.append(token)
+
+
+        #here is the algorithm (for more details, look at the project report)
+
+        #is dice 6?
+        if dice.outcome == 6:
+            for token in validTokens:
+                #is there any token at the base?
+                if token.current == 0:
+                    token.move(self, dice)
+                    return
+
+        
+        for token in validTokens:
+            #is there any token that can move to a safe square?
+            try:
+                if token.path[token.current + dice.outcome].safe and (token.current + dice.outcome) < 52:
+                    token.move(self, dice)
+                    return
+            except:
+                pass
+            
+        
+        for token in validTokens:
+            #is there any token that can capture another token?
+            try:
+                if token.path[token.current + dice.outcome].tokens[0].color != token.color:
+                    token.move(self, dice)
+                    return
+            except:
+                pass
+
+
+        for token in validTokens:
+            #is there any token that can reach the end square?
+            if token.current + dice.outcome == 57:
+                token.move(self, dice)
+                return
+            
+
+        for token in validTokens:
+            #are all tokens in a safe square?
+            if not token.path[token.current].safe:
+                token.move(self, dice)
+                return
+            
+
+        for token in validTokens:
+            #if the token moves, will be the 7 squares behind safe?
+            empty = True
+            try:
+                for i in range(7):
+                    for otherToken in token.path[token.current + dice.outcome - i].tokens:
+                        if otherToken.color != token.color:
+                            empty = False #make it false once one other token is found
+                            break
+                    
+                    if not empty: #this is only to double break from the loop
+                        break
+
+                if empty:
+                    token.move(self, dice)
+                    return
+                
+            except:
+                pass
+
+
+        #move the closest token, which is the last in the list
+        try:
+            validTokens[len(validTokens)-1].move(self, dice)
+        except:
+            pass
+
+    
+    #this is a static function that uses merge sort to sort the tokens from furthest to closest
+    def mergeSort(tokens):
+
+        #when reaching the end of the recursion
+        if len(tokens) == 1:
+            return
+        
+        counter = 0
+
+        #split into two lists
+        tokens1 = tokens[:len(tokens)//2]
+        tokens2 = tokens[len(tokens)//2:]
+
+        #sort each list
+        Player.mergeSort(tokens1)
+        Player.mergeSort(tokens2)
+
+        #given that both lists are sorted, we can compare element by element starting from the begining
+        i=0; j=0
+        while i < len(tokens1) and j < len(tokens2):
+
+            if tokens1[i].current > tokens2[j].current:
+                tokens[counter] = tokens1[i]
+                i += 1
+                counter += 1
+            else:
+                tokens[counter] = tokens2[j]
+                j += 1
+                counter += 1
+
+        #if there is a small difference between the length of the lists
+        while i < len(tokens1):
+
+            tokens[counter] = tokens1[i]
+            i += 1
+            counter += 1
+
+        while j < len(tokens2):
+
+            tokens[counter] = tokens2[j]
+            j += 1
+            counter += 1
+
+
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+in file "square.py":
+
+#Square class defines the properties and behaviours of a square in the gameboard
+#a Square object is only responsible for rendering images on it
+class Square():
+
+    def __init__(self, position, safe=False):
+        self.position = position
+        #some squares in the gameboard are safe, as they prevent capturing
+        self.safe = safe
+        #a Square object keeps track of the tokens in it, so it can render the images of the tokens correctly
+        self.tokens = []
+
+    #to add a token to the list
+    def addToken(self, token):
+        self.tokens.append(token)
+        token.changePosition(self.position)
+
+    #to remove a token from the list
+    def removeToken(self, token):
+        self.tokens.remove(token)
+
+    #to render images on the square
+    def renderImage(self, gameSetup, screen, player, dice):
+
+        if self.tokens:
+
+            #to make it easier to track the number of tokens of each color, we creat a dictionary,
+            #where keys represents the color, and its value represents the number of tokens of that color
+            track = {}
+            for token in self.tokens:
+                if token.color in track:
+                    track[token.color] += 1
+                else:
+                    track[token.color] = 1
+
+
+
+
+            #if it is a safe square, then it is possible for differently-colored tokens to coexist,
+            #therefore, if different colors coexist, we must render a small image of the tokens
+            if self.safe and len(track.keys()) > 1:
+                for color, quantity in track.items():
+                    screen.blit(gameSetup.images[color][quantity - 1][1], self.position)
+
+            #otherwise, render the regular size
+            else:
+                for color, quantity in track.items():
+                    screen.blit(gameSetup.images[color][quantity - 1][0], self.position)
+
+            #(for more details on accessing token images, look at creator.py)
+
+
+
+
+            #to highlihgt the available tokens for the player
+            #highlight only for the current player and if token has a valid move
+            if player.color in track.keys() and self.tokens[0].isValid(dice.outcome):
+                screen.blit(gameSetup.highlight, self.position)
